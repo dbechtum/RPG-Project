@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using RPG.Core;
 
 namespace RPG.Movement
 {
-    public class Mover : MonoBehaviour
+    public class Mover : MonoBehaviour, IAction
     {
         private NavMeshAgent agent;
         private Animator animator;
 
         void Start()
         {
-            agent = this.gameObject.GetComponent<NavMeshAgent>();
-            animator = this.gameObject.GetComponent<Animator>();
+            agent = GetComponent<NavMeshAgent>();
+            animator = GetComponent<Animator>();
         }
 
         void Update()
@@ -21,9 +22,21 @@ namespace RPG.Movement
             UpdateAnimator();
         }
 
-        public void MoveTo(Vector3 destionation)
+        public void StartMoveAction(Vector3 destination)
         {
-            agent.destination = destionation;
+            GetComponent<ActionScheduler>().StartAction(this);
+            MoveTo(destination);
+        }
+
+        public void MoveTo(Vector3 destination)
+        {
+            agent.destination = destination;
+            agent.isStopped = false;
+        }
+
+        public void Cancel()
+        {
+            agent.isStopped = true;
         }
 
         private void UpdateAnimator()
