@@ -16,11 +16,20 @@ namespace RPG.Control
         private Fighter fighter;
         private Mover mover;
         private Health health;
+
+        private Vector3 guardLocation;
+        [SerializeField] bool returnToGuardLocation = true;
+        [SerializeField] float searchTimeAfterChase = 5f;
+        private float timeSinceLastSawPlayer = 0f;
+
         void Start()
         {
             fighter = GetComponent<Fighter>();
             mover = GetComponent<Mover>();
             health = GetComponent<Health>();
+
+            guardLocation = transform.position;
+
 
             InvokeRepeating("FindNearestPlayer", 1f, 2.5f); //loops through all the players to find the closests one.
         }
@@ -33,10 +42,37 @@ namespace RPG.Control
         private void Chase()
         {
             if (nearestPlayer == null) return;
-            float distance = Vector3.Distance(transform.position, nearestPlayer.transform.position);
             if (InChaseRangeOfPlayer() && fighter.CanAttack(nearestPlayer))
             {
-                fighter.Attack(nearestPlayer);
+                AttackBehaviour();
+            }
+            else if (timeSinceLastSawPlayer < searchTimeAfterChase)
+            {
+                SearchBehaviour();
+            }
+            else
+            {
+                GuardBehaviour();
+            }
+        }
+
+        private void AttackBehaviour()
+        {
+            timeSinceLastSawPlayer = 0;
+            fighter.Attack(nearestPlayer);
+        }
+
+        private void SearchBehaviour()
+        {
+            timeSinceLastSawPlayer += Time.deltaTime;
+            fighter.Cancel();
+        }
+
+        private void GuardBehaviour()
+        {
+            if (returnToGuardLocation)
+            {
+                mover.StartMoveAction(guardLocation);
             }
             else
             {
@@ -50,6 +86,7 @@ namespace RPG.Control
             return distance < chaseDistance;
         }
 
+        //Get a list of all the players and figure out which one is closest
         private void FindNearestPlayer()
         {
             if (health.IsDead())

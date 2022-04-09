@@ -180,6 +180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chaseDistance: 5
+  returnToGuardLocation: 1
 --- !u!114 &3198771262756225675
 MonoBehaviour:
   m_ObjectHideFlags: 0
