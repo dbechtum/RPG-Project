@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using RPG.Combat;
-using RPG.Movement;
 using UnityEngine;
+using RPG.Combat;
+using RPG.Core;
+using RPG.Movement;
+
 
 namespace RPG.Control
 {
@@ -24,6 +26,7 @@ namespace RPG.Control
         }
         private void Update()
         {
+            if (health.IsDead()) return;
             Chase();
         }
 
@@ -61,8 +64,8 @@ namespace RPG.Control
 
                 foreach (GameObject player in players)
                 {
-                    float distance = Vector3.Distance(transform.position, player.transform.position);
                     if (player.GetComponent<Health>().IsDead()) continue; //ignore dead players
+                    float distance = Vector3.Distance(transform.position, player.transform.position);
                     if ((distance < lowestDistance))
                     {
                         nearestPlayer = player;
@@ -70,6 +73,13 @@ namespace RPG.Control
                     }
                 }
             }
+        }
+
+        // Called by Unity
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.gray;
+            Gizmos.DrawWireSphere(transform.position, chaseDistance);
         }
     }
 }

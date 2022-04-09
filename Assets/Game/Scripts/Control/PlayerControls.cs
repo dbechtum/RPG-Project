@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RPG.Movement;
 using RPG.Combat;
-using System;
+using RPG.Core;
 
 namespace RPG.Control
 {
@@ -12,13 +12,16 @@ namespace RPG.Control
     {
         private Fighter fighter;
         private Mover mover;
+        private Health health;
         void Start()
         {
             fighter = GetComponent<Fighter>();
             mover = GetComponent<Mover>();
+            health = GetComponent<Health>();
         }
         void Update()
         {
+            if (health.IsDead()) return;
             if (InteractWithCombat()) return;
             if (InteractWithMovement()) return;
         }
