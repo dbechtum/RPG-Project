@@ -24,8 +24,7 @@ namespace RPG.Combat
 
         private void Update()
         {
-            if (target == null) return;
-            if (target.IsDead()) return;
+            if (!CanAttack()) return;
 
             if (!GetIsInWeaponRange())
             {
@@ -40,17 +39,20 @@ namespace RPG.Combat
 
         private void AttackBehaviour()
         {
+            transform.LookAt(target.transform);
             if (!cooldown)
             {
-                animator.SetTrigger("attack");
+                TriggerAttack();
                 cooldown = true;
                 Invoke("AttackCooldown", attackSpeed);
             }
         }
 
-        private bool GetIsInWeaponRange()
+        //(Re)Set Animator attack triggers.
+        private void TriggerAttack()
         {
-            return Vector3.Distance(transform.position, target.transform.position) < weaponRange;
+            animator.ResetTrigger("cancelAttack");
+            animator.SetTrigger("attack");
         }
 
         public void Attack(CombatTarget _target)
@@ -58,6 +60,25 @@ namespace RPG.Combat
             //this will trigger Hit() through animation events.
             GetComponent<ActionScheduler>().StartAction(this);
             target = _target.GetComponent<Health>();
+        }
+
+        private bool CanAttack()
+        {
+            if (target == null) return false;
+            if (target.IsDead()) return false;
+            return true;
+        }
+
+        public bool CanAttack(CombatTarget combatTarget)
+        {
+            if (combatTarget == null) return false;
+            Health targetToTest = combatTarget.GetComponent<Health>();
+            return (targetToTest != null) && (!targetToTest.IsDead());
+        }
+
+        private bool GetIsInWeaponRange()
+        {
+            return Vector3.Distance(transform.position, target.transform.position) < weaponRange;
         }
 
         //Animation Event
@@ -69,8 +90,15 @@ namespace RPG.Combat
 
         public void Cancel()
         {
-            animator.SetTrigger("cancelAttack");
+            StopAttack();
             target = null;
+        }
+
+        //(Re)Set Animator attack triggers.
+        private void StopAttack()
+        {
+            animator.ResetTrigger("attack");
+            animator.SetTrigger("cancelAttack");
         }
 
         private void AttackCooldown()
