@@ -11,12 +11,14 @@ namespace RPG.Movement
         private NavMeshAgent agent;
         private Animator animator;
         private Health health;
+        private ActionScheduler actionScheduler;
 
         void Start()
         {
             agent = GetComponent<NavMeshAgent>();
             animator = GetComponent<Animator>();
             health = GetComponent<Health>();
+            actionScheduler = GetComponent<ActionScheduler>();
         }
 
         void Update()
@@ -28,8 +30,20 @@ namespace RPG.Movement
 
         public void StartMoveAction(Vector3 destination)
         {
-            GetComponent<ActionScheduler>().StartAction(this);
+            actionScheduler.StartAction(this);
             MoveTo(destination);
+        }
+        public void StartMoveAction(Vector3 destination, Quaternion rotation)
+        {
+            actionScheduler.StartAction(this);
+            MoveTo(destination);
+            if (Vector3.Distance(transform.position, destination) < 0.25f)
+            {
+                if (Quaternion.Angle(transform.rotation, rotation) > 0.01f)
+                {
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, Time.deltaTime * 250);
+                }
+            }
         }
 
         public void MoveTo(Vector3 destination)

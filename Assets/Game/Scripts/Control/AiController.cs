@@ -4,7 +4,7 @@ using UnityEngine;
 using RPG.Combat;
 using RPG.Core;
 using RPG.Movement;
-
+using System;
 
 namespace RPG.Control
 {
@@ -17,10 +17,17 @@ namespace RPG.Control
         private Mover mover;
         private Health health;
 
-        private Vector3 guardLocation;
-        [SerializeField] bool returnToGuardLocation = true;
+        [SerializeField] PatrolPath patrolPath;
+        [SerializeField] float waypointTolerance = 0.5f;
+        int currentWaypointIndex = 0;
+
+        private Vector3 guardPosition;
+        private Quaternion guardRotation;
+        private Vector3 nextPosition;
         [SerializeField] float searchTimeAfterChase = 5f;
-        private float timeSinceLastSawPlayer = 0f;
+        [SerializeField] float waitTimeAfterWaypointArrival = 3f;
+        private float timeSinceLastSawPlayer;
+        private float timeSinceArrivedAtWaypoint = 0f;
 
         void Start()
         {
@@ -28,8 +35,10 @@ namespace RPG.Control
             mover = GetComponent<Mover>();
             health = GetComponent<Health>();
 
-            guardLocation = transform.position;
-
+            guardPosition = transform.position;
+            guardRotation = transform.rotation;
+            nextPosition = guardPosition;
+            timeSinceLastSawPlayer = searchTimeAfterChase;
 
             InvokeRepeating("FindNearestPlayer", 1f, 2.5f); //loops through all the players to find the closests one.
         }
@@ -52,7 +61,7 @@ namespace RPG.Control
             }
             else
             {
-                GuardBehaviour();
+                PatrolBehaviour();
             }
         }
 
@@ -68,16 +77,39 @@ namespace RPG.Control
             fighter.Cancel();
         }
 
-        private void GuardBehaviour()
+        private void PatrolBehaviour()
         {
-            if (returnToGuardLocation)
+            if (patrolPath != null)
             {
-                mover.StartMoveAction(guardLocation);
+                if (AtWaypoint())
+                {
+                    timeSinceArrivedAtWaypoint += Time.deltaTime; //linger at waypoint timer
+                    if (timeSinceArrivedAtWaypoint >= waitTimeAfterWaypointArrival)
+                    {
+                        timeSinceArrivedAtWaypoint = 0; //reset timer
+                        GetNextWaypoint();
+                    }
+                }
+                nextPosition = GetCurrentWaypoint();
+                mover.StartMoveAction(nextPosition);
+                return;
             }
-            else
-            {
-                fighter.Cancel();
-            }
+            mover.StartMoveAction(guardPosition, guardRotation);
+        }
+
+        private Vector3 GetCurrentWaypoint()
+        {
+            return patrolPath.GetWaypoint(currentWaypointIndex);
+        }
+
+        private void GetNextWaypoint()
+        {
+            currentWaypointIndex = patrolPath.GetNextIndex(currentWaypointIndex);
+        }
+
+        private bool AtWaypoint()
+        {
+            return (Vector3.Distance(transform.position, GetCurrentWaypoint()) < waypointTolerance);
         }
 
         private bool InChaseRangeOfPlayer()
@@ -97,7 +129,7 @@ namespace RPG.Control
             {
                 //get all the players
                 players = GameObject.FindGameObjectsWithTag("Player");
-                float lowestDistance = 100;
+                float lowestDistance = 1000;
 
                 foreach (GameObject player in players)
                 {
