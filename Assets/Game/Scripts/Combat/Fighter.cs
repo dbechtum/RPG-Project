@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RPG.Movement;
 using RPG.Core;
+using System;
 
 namespace RPG.Combat
 {
@@ -11,6 +12,10 @@ namespace RPG.Combat
         [SerializeField] float weaponRange = 2f;
         [SerializeField] float weaponDamage = 10f;
         [SerializeField] float attackSpeed = 1.5f;
+        [SerializeField] Transform handTransform = null;
+        [SerializeField] Weapon weapon = null;
+
+
         bool cooldown;
         Health target;
         Mover mover;
@@ -20,7 +25,10 @@ namespace RPG.Combat
         {
             mover = GetComponent<Mover>();
             animator = GetComponent<Animator>();
+
+            SpawnWeapon();
         }
+
 
         private void Update()
         {
@@ -36,6 +44,13 @@ namespace RPG.Combat
                 AttackBehaviour();
             }
         }
+
+        private void SpawnWeapon()
+        {
+            if (weapon == null) return;
+            weapon.Spawn(handTransform, animator);
+        }
+
 
         private void AttackBehaviour()
         {
