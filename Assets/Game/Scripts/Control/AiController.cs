@@ -29,8 +29,13 @@ namespace RPG.Control
         private float timeSinceLastSawPlayer;
         private float timeSinceArrivedAtWaypoint = 0f;
 
+        [Range(0, 1)]
+        [SerializeField] float patrolSpeedFraction = 0.5f;
+
+
         void Start()
         {
+
             fighter = GetComponent<Fighter>();
             mover = GetComponent<Mover>();
             health = GetComponent<Health>();
@@ -91,10 +96,10 @@ namespace RPG.Control
                     }
                 }
                 nextPosition = GetCurrentWaypoint();
-                mover.StartMoveAction(nextPosition);
+                mover.StartMoveAction(nextPosition, patrolSpeedFraction);
                 return;
             }
-            mover.StartMoveAction(guardPosition, guardRotation);
+            mover.StartMoveAction(guardPosition, guardRotation, patrolSpeedFraction);
         }
 
         private Vector3 GetCurrentWaypoint()

@@ -13,6 +13,8 @@ namespace RPG.Movement
         private Health health;
         private ActionScheduler actionScheduler;
 
+        [SerializeField] float maxSpeed = 5.662316f;
+
         void Start()
         {
             agent = GetComponent<NavMeshAgent>();
@@ -28,16 +30,15 @@ namespace RPG.Movement
             UpdateAnimator();
         }
 
-        public void StartMoveAction(Vector3 destination)
+        public void StartMoveAction(Vector3 destination, float speedFraction)
         {
-            actionScheduler.StartAction(this);
-            MoveTo(destination);
+            StartMoveAction(destination, Quaternion.identity, speedFraction);
         }
-        public void StartMoveAction(Vector3 destination, Quaternion rotation)
+        public void StartMoveAction(Vector3 destination, Quaternion rotation, float speedFraction)
         {
             actionScheduler.StartAction(this);
-            MoveTo(destination);
-            if (Vector3.Distance(transform.position, destination) < 0.25f)
+            MoveTo(destination, speedFraction);
+            if (rotation != Quaternion.identity && Vector3.Distance(transform.position, destination) < 0.25f)
             {
                 if (Quaternion.Angle(transform.rotation, rotation) > 0.01f)
                 {
@@ -46,9 +47,10 @@ namespace RPG.Movement
             }
         }
 
-        public void MoveTo(Vector3 destination)
+        public void MoveTo(Vector3 destination, float speedFraction)
         {
             agent.destination = destination;
+            agent.speed = maxSpeed * Mathf.Clamp01(speedFraction);
             agent.isStopped = false;
         }
 

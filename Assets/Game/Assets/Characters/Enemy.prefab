@@ -64,6 +64,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 651816370, guid: e0d982817ded9ae46b82d26ec573ce8f, type: 3}
+      propertyPath: maxSpeed
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 651816375, guid: e0d982817ded9ae46b82d26ec573ce8f, type: 3}
       propertyPath: m_Speed
       value: 3.5
@@ -180,7 +184,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chaseDistance: 5
-  returnToGuardLocation: 1
+  patrolPath: {fileID: 0}
+  waypointTolerance: 0.5
+  searchTimeAfterChase: 5
+  waitTimeAfterWaypointArrival: 3
+  patrolSpeedFraction: 0.5
 --- !u!114 &3198771262756225675
 MonoBehaviour:
   m_ObjectHideFlags: 0
