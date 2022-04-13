@@ -11,7 +11,7 @@ namespace RPG.Combat
     {
 
         [SerializeField] Transform handTransform = null;
-        [SerializeField] Weapon weapon = null;
+        [SerializeField] Weapon defaultWeapon = null;
         [SerializeField] float attackSpeedModifier = 1f;
 
 
@@ -19,13 +19,14 @@ namespace RPG.Combat
         Health target;
         Mover mover;
         Animator animator;
+        Weapon currentWeapon = null;
 
         private void Start()
         {
             mover = GetComponent<Mover>();
             animator = GetComponent<Animator>();
 
-            SpawnWeapon();
+            EquipWeapon(defaultWeapon);
         }
 
 
@@ -44,9 +45,9 @@ namespace RPG.Combat
             }
         }
 
-        private void SpawnWeapon()
+        public void EquipWeapon(Weapon weapon)
         {
-            if (weapon == null) return;
+            currentWeapon = weapon;
             weapon.Spawn(handTransform, animator);
         }
 
@@ -58,7 +59,7 @@ namespace RPG.Combat
             {
                 TriggerAttack();
                 cooldown = true;
-                Invoke("AttackCooldown", weapon.GetSpeed() * attackSpeedModifier);
+                Invoke("AttackCooldown", currentWeapon.GetSpeed() * attackSpeedModifier);
             }
         }
 
@@ -92,14 +93,14 @@ namespace RPG.Combat
 
         private bool GetIsInWeaponRange()
         {
-            return Vector3.Distance(transform.position, target.transform.position) < weapon.GetRange();
+            return Vector3.Distance(transform.position, target.transform.position) < currentWeapon.GetRange();
         }
 
         //Animation Event
         private void Hit()
         {
             if (target == null) return;
-            target.TakeDamage(weapon.GetDamage());
+            target.TakeDamage(currentWeapon.GetDamage());
         }
 
         public void Cancel()
