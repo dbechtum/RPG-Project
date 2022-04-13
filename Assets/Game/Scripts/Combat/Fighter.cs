@@ -9,11 +9,10 @@ namespace RPG.Combat
 {
     public class Fighter : MonoBehaviour, IAction
     {
-        [SerializeField] float weaponRange = 2f;
-        [SerializeField] float weaponDamage = 10f;
-        [SerializeField] float attackSpeed = 1.5f;
+
         [SerializeField] Transform handTransform = null;
         [SerializeField] Weapon weapon = null;
+        [SerializeField] float attackSpeedModifier = 1f;
 
 
         bool cooldown;
@@ -59,7 +58,7 @@ namespace RPG.Combat
             {
                 TriggerAttack();
                 cooldown = true;
-                Invoke("AttackCooldown", attackSpeed);
+                Invoke("AttackCooldown", weapon.GetSpeed() * attackSpeedModifier);
             }
         }
 
@@ -93,14 +92,14 @@ namespace RPG.Combat
 
         private bool GetIsInWeaponRange()
         {
-            return Vector3.Distance(transform.position, target.transform.position) < weaponRange;
+            return Vector3.Distance(transform.position, target.transform.position) < weapon.GetRange();
         }
 
         //Animation Event
         private void Hit()
         {
             if (target == null) return;
-            target.TakeDamage(weaponDamage);
+            target.TakeDamage(weapon.GetDamage());
         }
 
         public void Cancel()
