@@ -81,6 +81,7 @@ namespace RPG.Combat
         private bool CanAttack()
         {
             if (target == null) return false;
+            if (target.gameObject == this.gameObject) return false;
             if (target.IsDead()) return false;
             return true;
         }
@@ -104,7 +105,7 @@ namespace RPG.Combat
 
             if (currentWeapon.HasProjectile())
             {
-                currentWeapon.LaunchProjectile(rightHand, leftHand, target);
+                currentWeapon.LaunchProjectile(rightHand, leftHand, target, this.gameObject);
             }
             else
             {

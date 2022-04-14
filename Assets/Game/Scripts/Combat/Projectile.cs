@@ -9,6 +9,7 @@ namespace RPG.Combat
     {
 
         Health target = null;
+        GameObject caster = null;
         [SerializeField] float speed = 1;
         [Tooltip("If is Targeted, the projectile will continiously rotate towards the target.")]
         [SerializeField] bool targeted = false;
@@ -23,8 +24,9 @@ namespace RPG.Combat
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
-        public void SetTarget(Health target, float damage)
+        public void SetTarget(Health target, float damage, GameObject caster)
         {
+            this.caster = caster;
             this.damage = damage;
             this.target = target;
             transform.LookAt(GetAimLocation());
@@ -40,7 +42,7 @@ namespace RPG.Combat
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Player") return;
+            if (other.gameObject == caster) return;
 
             Health targetHit = other.gameObject.GetComponent<Health>();
             if (targetHit != null) targetHit.TakeDamage(damage);
