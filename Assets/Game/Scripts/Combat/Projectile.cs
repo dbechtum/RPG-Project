@@ -40,7 +40,6 @@ namespace RPG.Combat
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("We hittin shit");
             if (other.gameObject.tag == "Player") return;
 
             Health targetHit = other.gameObject.GetComponent<Health>();
