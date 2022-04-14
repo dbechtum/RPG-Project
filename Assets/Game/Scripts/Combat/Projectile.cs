@@ -10,17 +10,18 @@ namespace RPG.Combat
 
         Health target = null;
         GameObject caster = null;
-        [SerializeField] float speed = 1;
-        [Tooltip("If is Targeted, the projectile will continiously rotate towards the target.")]
-        [SerializeField] bool targeted = false;
-        float damage = 0;
+        [SerializeField] float speed = 1f;
+        [SerializeField] float lifeTime = 2f;
+        [Tooltip("If is Homing, the projectile will continiously rotate towards the target.")]
+        [SerializeField] bool isHoming = false;
+        float damage = 0f;
 
         // Update is called once per frame
         void Update()
         {
             if (target == null) return;
 
-            if (targeted) transform.LookAt(GetAimLocation());
+            if (isHoming && !target.IsDead()) transform.LookAt(GetAimLocation());
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
@@ -30,6 +31,7 @@ namespace RPG.Combat
             this.damage = damage;
             this.target = target;
             transform.LookAt(GetAimLocation());
+            Invoke("KillProjectile", lifeTime); //destroy projectile after x seconds
         }
 
         private Vector3 GetAimLocation()
@@ -45,7 +47,19 @@ namespace RPG.Combat
             if (other.gameObject == caster) return;
 
             Health targetHit = other.gameObject.GetComponent<Health>();
-            if (targetHit != null) targetHit.TakeDamage(damage);
+            if (targetHit != null)
+            {
+                if (!targetHit.IsDead())
+                {
+                    targetHit.TakeDamage(damage);
+
+                }
+            }
+            KillProjectile();
+        }
+
+        private void KillProjectile()
+        {
             Destroy(gameObject);
         }
     }
