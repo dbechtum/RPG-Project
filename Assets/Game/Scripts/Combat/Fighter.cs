@@ -10,7 +10,8 @@ namespace RPG.Combat
     public class Fighter : MonoBehaviour, IAction
     {
 
-        [SerializeField] Transform handTransform = null;
+        [SerializeField] Transform rightHand = null;
+        [SerializeField] Transform leftHand = null;
         [SerializeField] Weapon defaultWeapon = null;
         [SerializeField] float attackSpeedModifier = 1f;
 
@@ -48,7 +49,7 @@ namespace RPG.Combat
         public void EquipWeapon(Weapon weapon)
         {
             currentWeapon = weapon;
-            weapon.Spawn(handTransform, animator);
+            weapon.Spawn(rightHand, leftHand, animator);
         }
 
 
@@ -96,12 +97,27 @@ namespace RPG.Combat
             return Vector3.Distance(transform.position, target.transform.position) < currentWeapon.GetRange();
         }
 
-        //Animation Event
+        //Animation Event Melee
         private void Hit()
         {
             if (target == null) return;
-            target.TakeDamage(currentWeapon.GetDamage());
+
+            if (currentWeapon.HasProjectile())
+            {
+                currentWeapon.LaunchProjectile(rightHand, leftHand, target);
+            }
+            else
+            {
+                target.TakeDamage(currentWeapon.GetDamage());
+            }
         }
+
+        //Animation Event Bows
+        private void Shoot()
+        {
+            Hit();
+        }
+
 
         public void Cancel()
         {
