@@ -23,9 +23,10 @@ namespace RPG.Combat
         // Update is called once per frame
         void Update()
         {
-            if (target == null) return;
-
-            if (isHoming && !target.IsDead()) transform.LookAt(GetAimLocation());
+            if (target != null)
+            {
+                if (isHoming && !target.IsDead()) transform.LookAt(GetAimLocation());
+            }
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
@@ -35,7 +36,7 @@ namespace RPG.Combat
             this.damage = damage;
             this.target = target;
             transform.LookAt(GetAimLocation());
-            Invoke("KillProjectile", lifeTime); //destroy projectile after x seconds
+            Invoke("StopProjectile", lifeTime); //destroy projectile after x seconds
         }
 
         private Vector3 GetAimLocation()
